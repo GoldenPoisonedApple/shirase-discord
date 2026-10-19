@@ -1,0 +1,10 @@
+# .devcontainer
+/.devcontainer
+
+# ビルド成果物
+/target
+
+# 環境変数
+.env
+.env.*
+!.env.example

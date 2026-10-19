@@ -1,0 +1,16 @@
+# プロジェクトのライブラリ管理
+[package]
+name = "shirase"
+version = "0.1.0"
+edition = "2024"
+description = "Async notification library for Discord and other platforms"
+license = "MIT"
+readme = "README.md"
+rust-version = "1.99" # 対応する最低バージョン
+
+# ライブラリ
+[lib]
+name = "shirase"
+path = "src/lib.rs"
+
+[dependencies]

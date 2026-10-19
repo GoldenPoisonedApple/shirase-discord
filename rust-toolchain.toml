@@ -1,0 +1,9 @@
+# ツールチェーン(コンパイラ・標準ライブラリ・cargo等一式)管理
+[toolchain]
+channel = "1.99"
+# rustupコンポーネントの指定
+# default: 開発用標準 rustc, cargo, rust-std, rust-docs等
+# minimal: 最小限 rustc, cargo, rust-std等
+profile = "default"
+components = ["rustfmt", "clippy", "rust-src"]
+
