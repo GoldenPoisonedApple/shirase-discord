@@ -1,3 +1,9 @@
+# .envファイルを読み込む
+# Makeの変数として扱う
+# -include: ファイルが存在しない場合はエラーとしない
+-include .env
+export
+
 # ドキュメントを生成してブラウザで開く
 .PHONY: docs
 docs:
@@ -43,3 +49,22 @@ ci:
 	$(MAKE) lint
 	$(MAKE) test
 	cargo fmt --all -- --check
+
+
+# ----------------------------
+# discord
+# ----------------------------
+
+# 送信テスト
+.PHONY: send-test
+send-test:
+	curl -X POST -H "Content-Type: application/json" -d @test.json $(DISCORD_WEBHOOK_URL)
+
+# <: 文字列としてフィールドに入れる
+# @: ファイルとして送る
+.PHONY: send-test-file
+send-test-file:
+	curl -X POST -F "payload_json=<test-file.json" \
+	 -F "files[0]=@sample00.png;type=image/png" \
+	 -F "files[1]=@sample01.png;type=image/png" \
+	 $(DISCORD_WEBHOOK_URL)

@@ -14,3 +14,27 @@ name = "shirase"
 path = "src/lib.rs"
 
 [dependencies]
+# 非同期
+async-trait = "0.1.92"
+# エラー
+thiserror = "2.0.21"
+# URL
+url = "2.5.8"
+# file
+bytes = "1.12.1"
+infer = "0.22.0"
+# JSON
+serde_json = "1.0.154"
+# 時間
+time = "0.3.55"
+# http client
+reqwest = { version = "0.13.5", features = ["json", "multipart"] }
+
+
+# 開発環境のみでの依存
+[dev-dependencies]
+
+# 特定機能の依存
+[features]
+default = ["discord"]
+discord = []
