@@ -1,6 +1,6 @@
 # shirase-discord
 
-![Rust](https://img.shields.io/badge/rust-1.99%2B-orange.svg)
+![Rust](https://img.shields.io/badge/rust-1.99.1%2B-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 **A Rust library for asynchronously  sending Discord webhooks.**
@@ -22,7 +22,7 @@ shirase_discord = { git = "https://github.com/GoldenPoisonedApple/shirase_discor
 
 ## Requirements
 
-- **MSRV:** Rust 1.99 or later (`rust-version` in `Cargo.toml`)
+- **MSRV:** Rust 1.99.1 or later (`rust-version` in `Cargo.toml`)
 
 ## Example Usage
 

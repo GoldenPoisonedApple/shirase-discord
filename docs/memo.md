@@ -23,6 +23,13 @@ application/jsonとmultipart/form-dataを分けてる。
 - 通信量を少なくする
 - 正しい意味での使い分けとなる
 
+## CI/CD
+
+release-please-config.json
+- release-type: rust でCargo.toml, Cargo.lockを見てくれる
+
+MSRV: Minimum Supported Rust Version
+
 # 方針
 
 なるべく送信前に分かるエラーは排除して通信を抑える設計
