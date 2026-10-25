@@ -4,10 +4,10 @@ use serde::Serialize;
 use std::collections::HashSet;
 use url::Url;
 
-use crate::discord::attachment::Attachment;
-use crate::discord::embed::Embed;
-use crate::discord::embed::image_url::ImageUrl;
-use crate::discord::error::DiscordError;
+use crate::attachment::Attachment;
+use crate::embed::Embed;
+use crate::embed::image_url::ImageUrl;
+use crate::error::DiscordError;
 
 /// Discord message struct
 #[derive(Default, Serialize)]
@@ -34,6 +34,9 @@ pub struct Message {
   /// attachments count
   #[serde(skip)]
   attachments_count: usize,
+  /// payload
+  #[serde(skip)]
+  payload_json: Option<String>,
 }
 
 impl Message {
@@ -104,9 +107,21 @@ impl Message {
   }
 
   /// Add an embed
-  pub fn add_embed(mut self, embed: Embed) -> Self {
+  /// # Errors
+  /// Returns an error if:
+  /// - `embed` count is more than 10.
+  pub fn add_embed(mut self, embed: Embed) -> Result<Self, DiscordError> {
+    // verify
+    if self.embeds.len() >= 10 {
+      return Err(DiscordError::TooManyEmbeds {
+        actual: self.embeds.len(),
+        max: 10,
+      });
+    }
+    embed.verify()?;
+
     self.embeds.push(embed);
-    self
+    Ok(self)
   }
 
   /// Add an attachment
@@ -119,18 +134,13 @@ impl Message {
   }
 
   /// verify
-  pub(super) fn verify(&self) -> Result<(), DiscordError> {
+  fn verify(&self) -> Result<(), DiscordError> {
     // A message must contain at least one of the following:
     // content
     // attachments
     // embed
     if self.content.is_none() && self.attachments.is_empty() && self.embeds.is_empty() {
       return Err(DiscordError::EmptyContent);
-    }
-
-    // verify each embed
-    for embed in &self.embeds {
-      embed.verify()?;
     }
 
     // all embeds character count <= 6000
@@ -156,13 +166,26 @@ impl Message {
       }
     }
 
-    // embeds attachment url must refer to an attachment
+    // embeds attachment image url must refer to an attachment(library original restriction)
+    // and attachment image's filename must be (*.png, *.jpg, *.jpeg, *.gif, *.webp).(discord api restriction)
     for embed in &self.embeds {
       for image_url in embed.get_image_urls() {
-        if let ImageUrl::Attachment(filename) = image_url
-          && !attachment_filenames.contains(filename.as_str())
-        {
-          return Err(DiscordError::AttachmentUrlNotFound(filename.clone()));
+        if let ImageUrl::Attachment(filename) = image_url {
+          // verify extension
+          if !filename.ends_with(".png")
+            && !filename.ends_with(".jpg")
+            && !filename.ends_with(".jpeg")
+            && !filename.ends_with(".gif")
+            && !filename.ends_with(".webp")
+          {
+            return Err(DiscordError::InvalidExtension(
+              filename.rsplit('.').next().unwrap().to_string(),
+            ));
+          }
+          // verify attachment filename reference
+          if !attachment_filenames.contains(filename.as_str()) {
+            return Err(DiscordError::AttachmentUrlNotFound(filename.clone()));
+          }
         }
       }
     }
@@ -170,13 +193,32 @@ impl Message {
     Ok(())
   }
 
+  /// build the message
+  ///
+  /// It must be built before sending.
+  pub fn build(mut self) -> Result<Self, DiscordError> {
+    self.verify()?;
+
+    self.payload_json = Some(serde_json::to_string(&self)?);
+    Ok(self)
+  }
+
   /// get attachments count
   pub(super) fn get_attachments_count(&self) -> usize {
     self.attachments_count
   }
 
-  /// take attachments
-  pub(super) fn take_attachments(self) -> Vec<Attachment> {
-    self.attachments
+  /// get attachments
+  pub(super) fn get_attachments(&self) -> &[Attachment] {
+    &self.attachments
+  }
+
+  /// get payload json
+  pub(super) fn get_payload_json(&self) -> Result<&str, DiscordError> {
+    if let Some(payload_json) = &self.payload_json {
+      Ok(payload_json)
+    } else {
+      Err(DiscordError::NotBuilt)
+    }
   }
 }

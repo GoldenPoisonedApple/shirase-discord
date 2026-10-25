@@ -24,15 +24,12 @@ url = { version = "2.5.8", features = ["serde"] }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 # 時間
-time = { version = "0.3.55", features = ["serde"] }
+time = { version = "0.3.55", features = ["formatting", "serde"] }
 # http client
 reqwest = { version = "0.13.5", features = ["json", "multipart"] }
+# data
+bytes = "1.12.1"
 
 
 # 開発環境のみでの依存
 [dev-dependencies]
-
-# 特定機能の依存
-[features]
-default = ["discord"]
-discord = []

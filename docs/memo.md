@@ -1,3 +1,6 @@
+https://docs.discord.com/developers/reference
+https://docs.discord.com/developers/topics/rate-limits
+https://docs.discord.com/developers/resources/message
 
 
 文字数制限とかがdiscordにそぐっているかのmd作る
@@ -35,8 +38,18 @@ pub struct ImageAttachment(Attachment);
 self.0.get_filename() // みたいな感じでアクセスする
 ```
 
+// cfg: 条件付きコンパイル
+#[cfg(feature = "discord")]
+
+application/jsonとmultipart/form-dataを分けてる。
+- 通信量を少なくする
+- 正しい意味での使い分けとなる
+
 # 方針
 なるべく送信前に分かるエラーは排除して通信を抑える設計
+
+ただの一方向通信のため、componentsやpollは実装していない。送信先の事を知らない想定のため、allowed_mentionsも未実装。
+
 
 # 将来拡張
 ファイルを送信できるようにしたい。今attachmentと書きながらimageと言った方がいいくらいの型名の使い方しているため

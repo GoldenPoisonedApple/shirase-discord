@@ -2,12 +2,24 @@
 use serde::Serialize;
 use time::OffsetDateTime;
 
-use crate::discord::embed::author::Author;
-use crate::discord::embed::color::Color;
-use crate::discord::embed::field::Field;
-use crate::discord::embed::footer::Footer;
-use crate::discord::embed::image_url::ImageUrl;
-use crate::discord::error::DiscordError;
+use crate::embed::author::Author;
+use crate::embed::color::Color;
+use crate::embed::field::Field;
+use crate::embed::footer::Footer;
+use crate::embed::image_url::ImageUrl;
+use crate::error::DiscordError;
+
+/// embed media
+#[derive(Serialize)]
+struct EmbedMedia {
+  url: ImageUrl,
+}
+
+impl EmbedMedia {
+  fn get_url(&self) -> &ImageUrl {
+    &self.url
+  }
+}
 
 /// embed
 #[derive(Default, Serialize)]
@@ -30,15 +42,18 @@ pub struct Embed {
   /// フッター
   #[serde(skip_serializing_if = "Option::is_none")]
   footer: Option<Footer>,
-  /// タイムスタンプ群
-  #[serde(skip_serializing_if = "Option::is_none")]
+  /// タイムスタンプ
+  #[serde(
+    skip_serializing_if = "Option::is_none",
+    with = "time::serde::rfc3339::option"
+  )]
   timestamp: Option<OffsetDateTime>,
   /// 画像
   #[serde(skip_serializing_if = "Option::is_none")]
-  image: Option<ImageUrl>,
+  image: Option<EmbedMedia>,
   /// サムネイル
   #[serde(skip_serializing_if = "Option::is_none")]
-  thumbnail: Option<ImageUrl>,
+  thumbnail: Option<EmbedMedia>,
 }
 
 impl Embed {
@@ -108,7 +123,7 @@ impl Embed {
   /// - `fields` count is more than 25.
   pub fn add_field(mut self, field: Field) -> Result<Self, DiscordError> {
     // verify
-    if self.fields.len() > 25 {
+    if self.fields.len() >= 25 {
       return Err(DiscordError::TooManyFields {
         actual: self.fields.len(),
         max: 25,
@@ -133,13 +148,13 @@ impl Embed {
 
   /// set image
   pub fn image(mut self, image: ImageUrl) -> Self {
-    self.image = Some(image);
+    self.image = Some(EmbedMedia { url: image });
     self
   }
 
   /// set thumbnail
   pub fn thumbnail(mut self, thumbnail: ImageUrl) -> Self {
-    self.thumbnail = Some(thumbnail);
+    self.thumbnail = Some(EmbedMedia { url: thumbnail });
     self
   }
 
@@ -170,10 +185,10 @@ impl Embed {
   pub(crate) fn get_image_urls(&self) -> Vec<&ImageUrl> {
     let mut image_urls = Vec::new();
     if let Some(image) = &self.image {
-      image_urls.push(image);
+      image_urls.push(image.get_url());
     }
     if let Some(thumbnail) = &self.thumbnail {
-      image_urls.push(thumbnail);
+      image_urls.push(thumbnail.get_url());
     }
     if let Some(author) = &self.author
       && let Some(icon_url) = author.get_icon_url()

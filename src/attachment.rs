@@ -1,8 +1,8 @@
 //! Attachment
-use crate::discord::error::DiscordError;
+use crate::error::DiscordError;
 
-use serde::{Serialize, Serializer};
-use std::ops::Deref;
+use bytes::Bytes;
+use serde::Serialize;
 
 /// 添付ファイル
 #[derive(Serialize)]
@@ -11,7 +11,7 @@ pub struct Attachment {
   id: usize,
   /// ファイル名
   filename: String,
-  /// 説明
+  /// for ALT
   #[serde(skip_serializing_if = "Option::is_none")]
   description: Option<String>,
   /// ネタばれ防止
@@ -20,7 +20,7 @@ pub struct Attachment {
 
   /// データ本体
   #[serde(skip)]
-  data: Vec<u8>,
+  data: Bytes,
 }
 
 impl Attachment {
@@ -33,7 +33,7 @@ impl Attachment {
   /// Returns an error if:
   /// - `filename` is empty or longer than 1024 characters.
   /// - `data` is empty or larger than 20 MiB.
-  pub fn new(filename: &str, data: Vec<u8>) -> Result<Self, DiscordError> {
+  pub fn new(filename: &str, data: Bytes) -> Result<Self, DiscordError> {
     // verify
     if filename.is_empty() {
       return Err(DiscordError::EmptyContent);
@@ -100,57 +100,8 @@ impl Attachment {
     &self.filename
   }
 
-  /// take data
-  pub(super) fn into_multipart_parts(self) -> (String, Vec<u8>) {
-    (self.filename, self.data)
-  }
-}
-
-/// image attachment
-// newtype: コンポジションの形 要素が一つのタプルを持つ構造体のような感じ
-pub struct ImageAttachment(Attachment);
-
-impl ImageAttachment {
-  /// create a new image attachment
-  ///
-  /// # Errors
-  /// Returns an error if:
-  /// - `filename` is empty or longer than 1024 characters.
-  /// - `filename`'s extension is not an image(*.png, *.jpg, *.jpeg, *.gif, *.webp).
-  /// - `data` is empty or larger than 20 MiB.
-  pub fn new(filename: &str, data: Vec<u8>) -> Result<Self, DiscordError> {
-    let attachment = Attachment::new(filename, data)?;
-
-    // verify extension
-    let filename = attachment.get_filename();
-    if !filename.ends_with(".png")
-      && !filename.ends_with(".jpg")
-      && !filename.ends_with(".jpeg")
-      && !filename.ends_with(".gif")
-      && !filename.ends_with(".webp")
-    {
-      return Err(DiscordError::InvalidExtension(
-        filename.rsplit('.').next().unwrap().to_string(),
-      ));
-    }
-
-    Ok(Self(attachment))
-  }
-}
-
-impl Deref for ImageAttachment {
-  type Target = Attachment;
-
-  fn deref(&self) -> &Self::Target {
-    &self.0
-  }
-}
-
-impl Serialize for ImageAttachment {
-  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
-  {
-    self.0.serialize(serializer)
+  /// get data
+  pub(super) fn get_data(&self) -> &Bytes {
+    &self.data
   }
 }

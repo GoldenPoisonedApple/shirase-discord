@@ -3,8 +3,8 @@
 use serde::Serialize;
 use url::Url;
 
-use crate::discord::embed::image_url::ImageUrl;
-use crate::discord::error::DiscordError;
+use crate::embed::image_url::ImageUrl;
+use crate::error::DiscordError;
 
 /// Author
 /// Embedの一番上に表示

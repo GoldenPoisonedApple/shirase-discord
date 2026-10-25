@@ -2,7 +2,7 @@
 
 use serde::Serialize;
 
-use crate::discord::error::DiscordError;
+use crate::error::DiscordError;
 
 /// 部分表示
 #[derive(Serialize)]

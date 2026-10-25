@@ -1,8 +1,8 @@
 //! Footer
 use serde::Serialize;
 
-use crate::discord::embed::image_url::ImageUrl;
-use crate::discord::error::DiscordError;
+use crate::embed::image_url::ImageUrl;
+use crate::error::DiscordError;
 
 /// Footer
 /// Embedの一番下に表示

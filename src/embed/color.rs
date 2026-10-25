@@ -1,6 +1,6 @@
 //! Color
 
-use crate::discord::error::DiscordError;
+use crate::error::DiscordError;
 use serde::Serialize;
 
 /// Color
@@ -24,10 +24,6 @@ impl Color {
   pub const PURPLE: Self = Self(0xFF00FF);
   /// Cyan
   pub const CYAN: Self = Self(0x00FFFF);
-  /// Magenta
-  pub const MAGENTA: Self = Self(0xFF00FF);
-  /// Orange
-  pub const ORANGE: Self = Self(0xFFA500);
 
   /// create new color
   /// # Errors
@@ -49,9 +45,9 @@ impl Color {
   /// The decimal number of the color.
   /// # Examples
   /// ```rust
-  /// let color = Color::new(0xFF, 0x26, 0x00);
+  /// let color = Color::from_rgb(0xFF, 0x26, 0x00);
   ///
-  /// assert_eq!(color.build(), 0xFF2600);
+  /// assert_eq!(color.0, 0xFF2600);
   /// ```
   pub const fn from_rgb(r: u8, g: u8, b: u8) -> Self {
     Self(((r as u32) << 16) | ((g as u32) << 8) | (b as u32))

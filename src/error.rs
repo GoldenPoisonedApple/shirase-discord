@@ -1,5 +1,7 @@
 //! discord error
 
+use reqwest::StatusCode;
+use std::time::Duration;
 use thiserror::Error;
 
 /// discord error
@@ -18,6 +20,8 @@ pub enum DiscordError {
   InvalidColor { value: u32, max: u32 },
   #[error("too many fields: actual: {actual}, max: {max}")]
   TooManyFields { actual: usize, max: usize },
+  #[error("too many embeds: actual: {actual}, max: {max}")]
+  TooManyEmbeds { actual: usize, max: usize },
   #[error("missing embed field")]
   MissingEmbedField,
   #[error("duplicate attachment filename: {0}")]
@@ -28,6 +32,19 @@ pub enum DiscordError {
   InvalidUrl(String),
   #[error("failed to serialize message")]
   Serialize(#[from] serde_json::Error),
+  #[error("message is not built")]
+  NotBuilt,
+
   #[error("request failed: {0}")]
   Request(String),
+  #[error("rate limited (retry_after: {retry_after:?})")]
+  RateLimited {
+    retry_after: Option<Duration>,
+    body: Option<String>,
+  },
+  #[error("discord api error: status {status}")]
+  Api {
+    status: StatusCode,
+    body: Option<String>,
+  },
 }
