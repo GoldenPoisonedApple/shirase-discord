@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/GoldenPoisonedApple/shirase-discord/compare/shirase-discord-v0.1.1...shirase-discord-v0.1.2) (2026-10-25)
+
+
+### Features
+
+* create publish cd ([0f5eb44](https://github.com/GoldenPoisonedApple/shirase-discord/commit/0f5eb44a3c3d053ee238e9b9bad47c2dc99e2541))
+
 ## [0.1.1](https://github.com/GoldenPoisonedApple/shirase-discord/compare/shirase-discord-v0.1.0...shirase-discord-v0.1.1) (2026-10-25)
 
 
