@@ -3,12 +3,13 @@
 name = "shirase-discord"
 version = "0.1.1"
 edition = "2024"
-description = "Async notification library for Discord"
+description = "Async webhook notification library for Discord"
 license = "MIT"
 readme = "README.md"
 rust-version = "1.99.1" # 対応する最低バージョン
 repository = "https://github.com/GoldenPoisonedApple/shirase-discord"
-authors = ["GoldenPoisonedApple"]
+authors = ["GoldenPoisonedApple <goldenpoisonedapple@gmail.com>"]
+keywords = ["discord", "webhook", "async"]
 
 # ライブラリ
 [lib]
