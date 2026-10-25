@@ -5,17 +5,12 @@
 //! ## Quick start
 //!
 //! ```no_run
-//! use shirase::{DiscordWebhook, Message, Notifier, NotifierExt};
+//! use shirase::discord::send;
+//! use shirase::discord::Message;
 //!
 //! # async fn example() -> Result<(), shirase::ShiraseError> {
-//!   let notifier = DiscordWebhook::new("https://discord.com/api/webhooks/...")?;
-//!   notifier.send_text("Deploy complete").await?;
-//!
-//!   let message = Message::builder()
-//!     .content("Deploy complete")
-//!     .username("CI Bot")
-//!     .build()?;
-//!   notifier.send(&message).await?;
+//!   let message = Message::new().content("Hello, world!")?;
+//!   send("https://discord.com/api/webhooks/...", message).await?;
 //! #  Ok(())
 //! # }
 //! ```
@@ -30,4 +25,4 @@
 pub mod discord;
 
 #[cfg(feature = "discord")]
-pub use discord::message::DiscordMessage;
+pub use discord::webhook::send;

@@ -19,14 +19,12 @@ async-trait = "0.1.92"
 # エラー
 thiserror = "2.0.21"
 # URL
-url = "2.5.8"
-# file
-bytes = "1.12.1"
-infer = "0.22.0"
+url = { version = "2.5.8", features = ["serde"] }
 # JSON
+serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 # 時間
-time = "0.3.55"
+time = { version = "0.3.55", features = ["serde"] }
 # http client
 reqwest = { version = "0.13.5", features = ["json", "multipart"] }
 

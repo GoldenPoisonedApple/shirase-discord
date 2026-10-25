@@ -1,47 +1,47 @@
 //! Attachment
 use crate::discord::error::DiscordError;
 
-use bytes::Bytes;
-use serde_json::{Map, Value};
+use serde::{Serialize, Serializer};
+use std::ops::Deref;
 
 /// 添付ファイル
+#[derive(Serialize)]
 pub struct Attachment {
+  /// id
+  id: usize,
   /// ファイル名
   filename: String,
-  /// image/png など
-  content_type: &'static str,
   /// 説明
+  #[serde(skip_serializing_if = "Option::is_none")]
   description: Option<String>,
+  /// ネタばれ防止
+  #[serde(skip_serializing_if = "Option::is_none")]
+  is_spoiler: Option<bool>,
+
   /// データ本体
-  data: Bytes,
+  #[serde(skip)]
+  data: Vec<u8>,
 }
 
 impl Attachment {
   /// create a new attachment
   ///
-  /// The content type is inferred from `data`.
+  /// `filename` must be unique.(library original restriction)
   ///
   /// # Errors
   ///
   /// Returns an error if:
-  /// - `filename` is empty or longer than 256 bytes.
+  /// - `filename` is empty or longer than 1024 characters.
   /// - `data` is empty or larger than 20 MiB.
-  /// - `data`'s content type is not an image.
-  pub fn new(filename: String, data: Bytes) -> Result<Self, DiscordError> {
-    // infer content type
-    let content_type = match infer::get(&data) {
-      Some(kind) => kind.mime_type(),
-      None => "unknown",
-    };
-
+  pub fn new(filename: &str, data: Vec<u8>) -> Result<Self, DiscordError> {
     // verify
     if filename.is_empty() {
       return Err(DiscordError::EmptyContent);
     }
-    if filename.len() > 256 {
+    if filename.len() > 1024 {
       return Err(DiscordError::TooLongContent {
         actual: filename.len(),
-        max: 256,
+        max: 1024,
       });
     }
     if data.is_empty() {
@@ -53,72 +53,104 @@ impl Attachment {
         max: 1024 * 1024 * 20,
       });
     }
-    // only images can be attached
-    match content_type {
-      "image/png" | "image/jpeg" | "image/gif" | "image/webp" | "image/svg+xml" | "image/ico" => {
-        content_type
-      }
-      kind => return Err(DiscordError::InvalidContentType(kind)),
-    };
 
     Ok(Self {
-      filename,
-      content_type,
+      id: usize::MIN,
+      filename: filename.to_string(),
       description: None,
+      is_spoiler: None,
       data,
     })
+  }
+
+  /// set id
+  pub fn set_id(mut self, id: usize) -> Self {
+    self.id = id;
+    self
   }
 
   /// set description
   ///
   /// # Errors
   /// Returns an error if:
-  /// - `description` is longer than 2048 bytes.
-  pub fn description(mut self, description: String) -> Result<Self, DiscordError> {
+  /// - `description` is longer than 1024 characters.
+  pub fn description(mut self, description: &str) -> Result<Self, DiscordError> {
     // verify
-    if description.len() > 2048 {
+    if description.len() > 1024 {
       return Err(DiscordError::TooLongContent {
         actual: description.len(),
-        max: 2048,
+        max: 1024,
       });
     }
 
-    self.description = Some(description);
+    self.description = Some(description.to_string());
     Ok(self)
   }
 
+  /// set spoiler
+  ///
+  /// it is ignored in embed.
+  pub fn spoiler(mut self, is_spoiler: bool) -> Self {
+    self.is_spoiler = Some(is_spoiler);
+    self
+  }
+
   /// get filename
-  pub fn get_filename(&self) -> &str {
+  pub(super) fn get_filename(&self) -> &str {
     &self.filename
   }
 
-  /// get content type
-  pub fn get_content_type(&self) -> &'static str {
-    self.content_type
+  /// take data
+  pub(super) fn into_multipart_parts(self) -> (String, Vec<u8>) {
+    (self.filename, self.data)
   }
+}
 
-  /// get description
-  pub fn get_description(&self) -> Option<&str> {
-    self.description.as_deref()
-  }
+/// image attachment
+// newtype: コンポジションの形 要素が一つのタプルを持つ構造体のような感じ
+pub struct ImageAttachment(Attachment);
 
-  /// get data
-  pub fn get_data(&self) -> &Bytes {
-    &self.data
-  }
+impl ImageAttachment {
+  /// create a new image attachment
+  ///
+  /// # Errors
+  /// Returns an error if:
+  /// - `filename` is empty or longer than 1024 characters.
+  /// - `filename`'s extension is not an image(*.png, *.jpg, *.jpeg, *.gif, *.webp).
+  /// - `data` is empty or larger than 20 MiB.
+  pub fn new(filename: &str, data: Vec<u8>) -> Result<Self, DiscordError> {
+    let attachment = Attachment::new(filename, data)?;
 
-  /// build
-  pub fn build(&self, id: u64) -> Result<Value, DiscordError> {
-    let mut map = Map::new();
-    map.insert("id".to_string(), Value::Number(id.into()));
-    if let Some(description) = &self.description {
-      map.insert(
-        "description".to_string(),
-        Value::String(description.clone()),
-      );
+    // verify extension
+    let filename = attachment.get_filename();
+    if !filename.ends_with(".png")
+      && !filename.ends_with(".jpg")
+      && !filename.ends_with(".jpeg")
+      && !filename.ends_with(".gif")
+      && !filename.ends_with(".webp")
+    {
+      return Err(DiscordError::InvalidExtension(
+        filename.rsplit('.').next().unwrap().to_string(),
+      ));
     }
-    map.insert("filename".to_string(), Value::String(self.filename.clone()));
 
-    Ok(Value::Object(map))
+    Ok(Self(attachment))
+  }
+}
+
+impl Deref for ImageAttachment {
+  type Target = Attachment;
+
+  fn deref(&self) -> &Self::Target {
+    &self.0
+  }
+}
+
+impl Serialize for ImageAttachment {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    self.0.serialize(serializer)
   }
 }

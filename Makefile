@@ -64,7 +64,9 @@ send-test:
 # @: ファイルとして送る
 .PHONY: send-test-file
 send-test-file:
-	curl -X POST -F "payload_json=<test-file.json" \
-	 -F "files[0]=@sample00.png;type=image/png" \
-	 -F "files[1]=@sample01.png;type=image/png" \
+	curl -vvv -X POST -F "payload_json=<test-file.json" \
+	 -F "files[0]=@sample00.png;type=application/octet-stream" \
+	 -F "files[1]=@sample01.png;type=application/octet-stream" \
+	 -F "files[2]=@sample00.txt;type=text/plain" \
+	 -F "files[3]=@sample00.png;type=image/png" \
 	 $(DISCORD_WEBHOOK_URL)

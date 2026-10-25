@@ -1,29 +1,31 @@
 //! Field
 
-use serde_json::Value;
+use serde::Serialize;
 
 use crate::discord::error::DiscordError;
 
 /// 部分表示
+#[derive(Serialize)]
 pub struct Field {
   /// タイトル
   name: String,
   /// 値
   value: String,
   /// 横に並べるかどうか
-  inline: bool,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  inline: Option<bool>,
 }
 
 impl Field {
   /// create a new field
   ///
-  /// The field is inline by default.
+  /// The field is not inline by default.
   ///
   /// # Errors
   /// Returns an error if:
-  /// - `name` is longer than 256 bytes.
-  /// - `value` is longer than 1024 bytes.
-  pub fn new(name: String, value: String) -> Result<Self, DiscordError> {
+  /// - `name` is longer than 256 characters.
+  /// - `value` is longer than 1024 characters.
+  pub fn new(name: &str, value: &str) -> Result<Self, DiscordError> {
     // verify
     if name.len() > 256 {
       return Err(DiscordError::TooLongContent {
@@ -39,25 +41,20 @@ impl Field {
     }
 
     Ok(Self {
-      name,
-      value,
-      inline: true,
+      name: name.to_string(),
+      value: value.to_string(),
+      inline: None,
     })
   }
 
   /// set inline
   pub fn inline(mut self, inline: bool) -> Self {
-    self.inline = inline;
+    self.inline = Some(inline);
     self
   }
 
-  /// build
-  pub fn build(&self) -> Result<Value, DiscordError> {
-    let mut obj = serde_json::Map::new();
-    obj.insert("name".into(), Value::String(self.name.clone()));
-    obj.insert("value".into(), Value::String(self.value.clone()));
-    obj.insert("inline".into(), Value::Bool(self.inline));
-
-    Ok(Value::Object(obj))
+  /// get character count
+  pub(super) fn get_character_count(&self) -> usize {
+    self.name.len() + self.value.len()
   }
 }
