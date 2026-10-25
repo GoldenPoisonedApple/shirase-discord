@@ -170,10 +170,23 @@ impl Webhook {
   }
 }
 
+
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::Message;
   use reqwest::header::{HeaderMap, HeaderValue};
+
+  #[tokio::test]
+  async fn not_yet_built_message_should_return_error() {
+    let webhook = Webhook::new(5, 5).unwrap();
+    let message = Message::new().content("hello").unwrap();
+    let error = webhook
+      .send("https://example.invalid/webhook", &message)
+      .await
+      .expect_err("failed to return error when sending not yet built message");
+    assert!(matches!(error, DiscordError::NotBuilt));
+  }
 
   #[test]
   fn retry_after_from_json_body() {

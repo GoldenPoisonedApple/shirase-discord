@@ -216,3 +216,25 @@ impl Embed {
     Ok(())
   }
 }
+
+#[cfg(test)]
+mod verify_tests {
+  use super::*;
+  use crate::embed::image_url::ImageUrl;
+  use crate::error::DiscordError;
+
+  #[test]
+  fn no_text_and_no_image_embed_should_return_empty_content_error() {
+    let embed = Embed::new();
+    let error = embed.verify().unwrap_err();
+
+    assert!(matches!(error, DiscordError::EmptyContent));
+  }
+
+  #[test]
+  fn image_only_embed_should_succeed_verify() {
+    let embed = Embed::new().image(ImageUrl::attachment("image.png"));
+    
+    embed.verify().unwrap();
+  }
+}

@@ -182,6 +182,7 @@ impl Message {
               filename.rsplit('.').next().unwrap().to_string(),
             ));
           }
+        
           // verify attachment filename reference
           if !attachment_filenames.contains(filename.as_str()) {
             return Err(DiscordError::AttachmentUrlNotFound(filename.clone()));
@@ -220,5 +221,217 @@ impl Message {
     } else {
       Err(DiscordError::NotBuilt)
     }
+  }
+}
+
+#[cfg(test)]
+mod verify_tests {
+  use super::*;
+  use crate::attachment::Attachment;
+  use crate::embed::Embed;
+  use crate::embed::image_url::ImageUrl;
+  use crate::{Author, Color, Field, Footer};
+  use bytes::Bytes;
+  use serde_json::Value;
+  use time::OffsetDateTime;
+  use url::Url;
+
+  fn tiny_attachment(name: &str) -> Attachment {
+    Attachment::new(name, Bytes::from_static(b"x")).unwrap()
+  }
+
+  #[test]
+  fn no_sendable_body_message_should_return_error() {
+    let error = Message::new()
+      .username("username")
+      .unwrap()
+      .avatar_url(Url::parse("https://example.com/avatar.png").unwrap())
+      .unwrap()
+      .tts(true)
+      .build()
+      .err()
+      .expect("failed to return error when building a message with no sendable body");
+
+    assert!(matches!(error, DiscordError::EmptyContent));
+  }
+
+  #[test]
+  fn total_embed_text_should_not_exceed_6000_characters() {
+    let embed_a = Embed::new()
+      .title(&"a".repeat(100))
+      .unwrap()
+      .description(&"a".repeat(4000))
+      .unwrap()
+      .add_field(Field::new(&"a".repeat(100), &"a".repeat(500)).unwrap()).unwrap()
+      .add_field(Field::new(&"a".repeat(100), &"a".repeat(500)).unwrap()).unwrap();
+    let embed_b = Embed::new()
+      .author(
+        Author::new(&"b".repeat(50))
+          .unwrap()
+          .url(Url::parse("https://example.com").unwrap())
+          .unwrap()
+          .icon_url(ImageUrl::attachment("author_icon.png")),
+      )
+      .footer(Footer::new(&"b".repeat(1000)).unwrap().icon_url(ImageUrl::attachment(
+        "footer-icon.png",
+      )))
+      .color(Color::RED)
+      .image(ImageUrl::url(
+        Url::parse("https://example.com/image.png").unwrap(),
+      ))
+      .thumbnail(ImageUrl::url(
+        Url::parse("https://example.com/thumbnail.png").unwrap(),
+      ))
+      .timestamp(OffsetDateTime::UNIX_EPOCH);
+    let error = Message::new()
+      .add_embed(embed_a)
+      .unwrap()
+      .add_embed(embed_b)
+      .unwrap()
+      .build()
+      .err()
+      .expect("failed to return error when building a message with total embed text over 6000 characters");
+    assert!(matches!(
+      error,
+      DiscordError::TooLongContent {
+        actual,
+        max: 6000
+      } if actual == 6350
+    ));
+  }
+
+  #[test]
+  fn attachment_filenames_should_be_unique() {
+    let error = Message::new()
+      .content("ok")
+      .unwrap()
+      .add_attachment(tiny_attachment("dup.png"))
+      .add_attachment(tiny_attachment("dup.png"))
+      .build()
+      .err()
+      .expect("failed to return error when building a message with duplicate attachment filenames");
+    assert!(matches!(
+      error,
+      DiscordError::DuplicateAttachmentFilename(_)
+    ));
+  }
+
+  #[test]
+  fn attachment_imageurl_without_matching_attachment_filename_should_return_error() {
+    let embed = Embed::new()
+      .image(ImageUrl::attachment("missing.png"));
+    let error = Message::new()
+      .add_embed(embed)
+      .unwrap()
+      .add_attachment(tiny_attachment("image.png"))
+      .build()
+      .err()
+      .expect("failed to return error when building a message with attachment image url without matching attachment filename");
+    assert!(matches!(error, DiscordError::AttachmentUrlNotFound(_)));
+  }
+
+  #[test]
+  fn attachment_imageurl_extension_should_be_image_extensions() {
+    let error = Message::new()
+      .add_embed(
+        Embed::new()
+          .image(ImageUrl::attachment("notes.txt")),
+      )
+      .unwrap()
+      .add_attachment(tiny_attachment("notes.txt"))
+      .build()
+      .err()
+      .expect("failed to return error when building a message with attachment imageurl extension(not image extensions)");
+    assert!(matches!(error, DiscordError::InvalidExtension(_)));
+  }
+
+  #[test]
+  fn builds_rich_message_like_full_example() {
+    let author_icon = Bytes::from_static(b"author-icon");
+    let image = Bytes::from_static(b"image-bytes");
+    let thumbnail = image.clone();
+
+    let message = Message::new()
+      .content("Hello, world!")
+      .unwrap()
+      .username("username")
+      .unwrap()
+      .avatar_url(Url::parse("https://example.com/avatar.png").unwrap())
+      .unwrap()
+      .tts(true)
+      .add_embed(
+        Embed::new()
+          .title("Hello, world!")
+          .unwrap()
+          .description("This is a test embed.")
+          .unwrap()
+          .author(
+            Author::new("John Doe")
+              .unwrap()
+              .url(Url::parse("https://example.com").unwrap())
+              .unwrap()
+              .icon_url(ImageUrl::attachment("author_icon.png")),
+          )
+          .color(Color::RED)
+          .add_field(Field::new("Field 1", "Value 1").unwrap().inline(true))
+          .unwrap()
+          .add_field(Field::new("Field 2", "Value 2").unwrap().inline(true))
+          .unwrap()
+          .add_field(Field::new("Field 3", "Value 3").unwrap().inline(false))
+          .unwrap()
+          .footer(Footer::new("footer").unwrap().icon_url(ImageUrl::url(
+            Url::parse("https://example.com/footer-icon.png").unwrap(),
+          )))
+          .timestamp(OffsetDateTime::UNIX_EPOCH)
+          .image(ImageUrl::attachment("image.png"))
+          .thumbnail(ImageUrl::attachment("thumbnail.png")),
+      )
+      .unwrap()
+      .add_attachment(Attachment::new("author_icon.png", author_icon).unwrap())
+      .add_attachment(Attachment::new("image.png", image).unwrap())
+      .add_attachment(Attachment::new("thumbnail.png", thumbnail).unwrap())
+      .add_attachment(Attachment::new("file.txt", Bytes::from_static(b"Hello, world!")).unwrap())
+      .build()
+      .unwrap();
+
+    assert_eq!(message.get_attachments_count(), 4);
+
+    let payload = message.get_payload_json().unwrap();
+    let json: Value = serde_json::from_str(payload).unwrap();
+
+    assert_eq!(json["content"], "Hello, world!");
+    assert_eq!(json["username"], "username");
+    assert_eq!(json["tts"], true);
+    assert_eq!(json["embeds"].as_array().unwrap().len(), 1);
+
+    let embed = &json["embeds"][0];
+    assert_eq!(embed["title"], "Hello, world!");
+    assert_eq!(embed["description"], "This is a test embed.");
+    assert_eq!(embed["color"], 16711680);
+    assert_eq!(embed["fields"].as_array().unwrap().len(), 3);
+    assert_eq!(embed["fields"][0]["name"], "Field 1");
+    assert_eq!(embed["fields"][0]["value"], "Value 1");
+    assert_eq!(embed["fields"][0]["inline"], true);
+    assert_eq!(embed["fields"][1]["name"], "Field 2");
+    assert_eq!(embed["fields"][1]["value"], "Value 2");
+    assert_eq!(embed["fields"][1]["inline"], true);
+    assert_eq!(embed["fields"][2]["name"], "Field 3");
+    assert_eq!(embed["fields"][2]["value"], "Value 3");
+    assert_eq!(embed["fields"][2]["inline"], false);
+    assert_eq!(embed["footer"]["text"], "footer");
+    assert_eq!(embed["footer"]["icon_url"], "https://example.com/footer-icon.png");
+    assert_eq!(embed["timestamp"], "1970-01-01T00:00:00Z");
+    assert_eq!(embed["image"]["url"], "attachment://image.png");
+    assert_eq!(embed["thumbnail"]["url"], "attachment://thumbnail.png");
+    assert_eq!(embed["author"]["icon_url"], "attachment://author_icon.png");
+
+    let attachments = json["attachments"].as_array().unwrap();
+    assert_eq!(attachments.len(), 4);
+    let filenames: Vec<&str> = attachments
+      .iter()
+      .map(|item| item["filename"].as_str().unwrap())
+      .collect();
+    assert!(filenames.contains(&"image.png"));
+    assert!(filenames.contains(&"file.txt"));
   }
 }
