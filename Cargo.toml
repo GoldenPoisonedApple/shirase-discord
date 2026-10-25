@@ -3,7 +3,7 @@
 name = "shirase"
 version = "0.1.0"
 edition = "2024"
-description = "Async notification library for Discord and other platforms"
+description = "Async notification library for Discord"
 license = "MIT"
 readme = "README.md"
 rust-version = "1.99" # 対応する最低バージョン
@@ -33,3 +33,6 @@ bytes = "1.12.1"
 
 # 開発環境のみでの依存
 [dev-dependencies]
+# dotenv
+dotenvy = "0.15.7"
+tokio = { version = "1.54.1", features = ["rt-multi-thread"] }

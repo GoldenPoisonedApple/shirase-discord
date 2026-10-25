@@ -1,0 +1,88 @@
+# shirase
+
+**A Rust library for asynchronously  sending Discord webhooks.**
+
+## Features
+
+- Asynchronous sending.
+- Send custom messages.
+- Performs pre-send validation to minimize unnecessary network requests
+
+## Installation
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+shirase = { git = "https://github.com/GoldenPoisonedApple/shirase.git", tag = "latest"}
+```
+
+## Example Usage
+
+```rust
+use shirase::Webhook;
+use shirase::Message;
+
+#[tokio::main]
+async fn main() -> Result<(), shirase::error::DiscordError> {
+  let webhook = Webhook::new(10, 30)?;
+  let message = Message::new().content("Hello, world!")?.build()?;
+  webhook.send("https://discord.com/api/webhooks/...", &message).await?;
+  Ok(())
+}
+```
+
+## API Specification(at 2026/10/25)
+
+| key             | method                       | restriction                                                                                      | other                                |
+| --------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------ |
+| `content`       | `content(&str)?`             | ..2000 characters                                                                                |                                      |
+| `username`      | `username(&str)?`            | 1..80 characters                                                                                 |                                      |
+| `avatar_url`    | `avatar_url(Url)?`           | http(s)                                                                                          | shirase original restriction         |
+| `tts`           | `tts(bool)`                  |                                                                                                  |                                      |
+| `embed`         | `add_embed(Embed)?`          | ..10 embeds, must contain at least text content, `image` or `thumbnail`, total ..6000 characters |                                      |
+| ├ `title`       | `title(&str)?`               | ..256 characters                                                                                 |                                      |
+| ├ `description` | `description(&str)?`         | ..4096 characters                                                                                |                                      |
+| ├ `author`      | `author(Author)`             |                                                                                                  |                                      |
+| │└ `name`       | `new(&str)?`                 | ..256 characters                                                                                 |                                      |
+| │└ `url`        | `url(Url)?`                  | http(s)                                                                                          | shirase original restriction         |
+| │└ `icon_url`   | `icon_url(ImageUrl)`         |                                                                                                  |                                      |
+| ├ `color`       | `new(Color(0xXXXXXX))?`      |                                                                                                  | own Color::RED etc.                  |
+| ├ `fields`      | `add_field(Field)?`          | ..25 fields                                                                                      |                                      |
+| │└ `name`       | `new(&str, &str)?`           | ..256 characters                                                                                 |                                      |
+| │└ `value`      | `new(&str, &str)?`           | ..1024 characters                                                                                |                                      |
+| │└ `inline`     | `inline(bool)`               |                                                                                                  |                                      |
+| ├ `footer`      | `footer(Footer)`             |                                                                                                  |                                      |
+| │└ `text`       | `new(&str)?`                 | ..2048 characters                                                                                |                                      |
+| │└ `icon_url`   | `icon_url(ImageUrl)`         |                                                                                                  |                                      |
+| ├ `timestamp`   | `timestamp(OffsetDateTime)`  |                                                                                                  | ISO 8601                             |
+| ├ `image`       | `image(ImageUrl)`            |                                                                                                  |                                      |
+| ├ `thumbnail`   | `thumbnail(ImageUrl)`        |                                                                                                  |                                      |
+| `attachments`   | `add_attachment(Attachment)` |                                                                                                  |                                      |
+| ├ `filename`    | `new(&str, Bytes)?`          | 1..1024 characters, must be unique                                                               | unique(shirase original restriction) |
+| ├ `data`        | `new(&str, Bytes)?`          | 1B..20MiB                                                                                        |                                      |
+| ├ `description` | `new(&str, Bytes)?`          | 1024 characters                                                                                  |                                      |
+| ├ `is_spoiler`  | `spoiler(bool)`              |                                                                                                  | ignored in embed                     |
+
+- Image URL:
+  - url(Url): 
+  - attachment(&str): An extension must be (*.png, *.jpg, *.jpeg, *.gif, *.webp).
+  And must refer to an filename added `add_attachment` method(shirase original restriction).
+- A message must contain at least one of the following:
+  - `content`
+  - `attachment`
+  - `embed`
+- `components`, `poll` and `allowed_mentions` are not supported(as a one-way flow is assumed)
+- `POST` request with:
+  - `multipart/form-data` if have attachments
+  - `application/json` if not have attachments
+
+## Discord API References
+
+- [Discord Message API](https://discord.com/developers/docs/resources/message)
+- [Discord Rate Limits](https://discord.com/developers/docs/topics/rate-limits)
+- [Discord API Versioning](https://discord.com/developers/docs/reference)
+
+## License
+
+This project is licensed under the MIT License, see the [LICENSE](LICENSE) file for details.

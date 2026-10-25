@@ -52,8 +52,12 @@ ci:
 
 
 # ----------------------------
-# discord
+# test
 # ----------------------------
+
+.PHONY: example
+example:
+	cargo run --example full_webhook
 
 # 送信テスト
 .PHONY: send-test
