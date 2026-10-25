@@ -33,7 +33,7 @@ jobs:
       # cache cargo dependencies
       - uses: Swatinem/rust-cache@v2
 
-      # cargo deny install
+      # cargo deny check
       - uses: EmbarkStudios/cargo-deny-action@v2
         with:
           rust-version: ${{ matrix.toolchain }}

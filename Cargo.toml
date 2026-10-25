@@ -6,7 +6,9 @@ edition = "2024"
 description = "Async notification library for Discord"
 license = "MIT"
 readme = "README.md"
-rust-version = "1.99" # 対応する最低バージョン
+rust-version = "1.99.1" # 対応する最低バージョン
+repository = "https://github.com/GoldenPoisonedApple/shirase-discord"
+authors = ["GoldenPoisonedApple"]
 
 # ライブラリ
 [lib]

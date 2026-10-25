@@ -40,12 +40,15 @@ test:
 # sources: 依存元チェック
 .PHONY: check
 check:
+	$(MAKE) format
+	$(MAKE) lint
+	$(MAKE) test
 	cargo deny check
+
 
 # チェック
 .PHONY: ci
 ci:
-	$(MAKE) check
 	$(MAKE) lint
 	$(MAKE) test
 	cargo fmt --all -- --check
