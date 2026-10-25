@@ -1,9 +1,7 @@
 # shirase-discord
 
-[![Rust](https://img.shields.io/badge/rust-1.99%2B-orange.svg)](https://www.rust-lang.org/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-
+![Rust](https://img.shields.io/badge/rust-1.99%2B-orange.svg)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 **A Rust library for asynchronously  sending Discord webhooks.**
 
@@ -41,6 +39,7 @@ use shirase_discord::Message;
 #[tokio::main]
 async fn main() -> Result<(), shirase_discord::error::DiscordError> {
   let webhook = Webhook::new(10, 30)?;
+	// message must be built before sending
   let message = Message::new().content("Hello, world!")?.build()?;
   webhook.send("https://discord.com/api/webhooks/...", &message).await?;
   Ok(())
@@ -101,6 +100,7 @@ async fn main() -> Result<(), shirase_discord::error::DiscordError> {
 - [Discord API Versioning](https://discord.com/developers/docs/reference)
 
 ## Name
+
 - `shirase` means "notification" in Japanese.
 
 ## License
