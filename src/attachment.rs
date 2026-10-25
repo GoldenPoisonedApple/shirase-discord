@@ -9,16 +9,16 @@ use serde::Serialize;
 pub struct Attachment {
   /// id
   id: usize,
-  /// ファイル名
+  /// filename
   filename: String,
   /// for ALT
   #[serde(skip_serializing_if = "Option::is_none")]
   description: Option<String>,
-  /// ネタばれ防止
+  /// do not show spoiler
   #[serde(skip_serializing_if = "Option::is_none")]
   is_spoiler: Option<bool>,
 
-  /// データ本体
+  /// data body
   #[serde(skip)]
   data: Bytes,
 }

@@ -7,11 +7,11 @@ use crate::error::DiscordError;
 /// 部分表示
 #[derive(Serialize)]
 pub struct Field {
-  /// タイトル
+  /// title
   name: String,
-  /// 値
+  /// value
   value: String,
-  /// 横に並べるかどうか
+  /// inline(place next to each other)
   #[serde(skip_serializing_if = "Option::is_none")]
   inline: Option<bool>,
 }

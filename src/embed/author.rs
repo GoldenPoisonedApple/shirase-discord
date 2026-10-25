@@ -7,15 +7,15 @@ use crate::embed::image_url::ImageUrl;
 use crate::error::DiscordError;
 
 /// Author
-/// Embedの一番上に表示
+/// Displayed at the top of the embed
 #[derive(Serialize)]
 pub struct Author {
-  /// 作者名
+  /// name
   name: String,
-  /// クリックした時のURL
+  /// url(clickable)
   #[serde(skip_serializing_if = "Option::is_none")]
   url: Option<Url>,
-  /// アイコンURL
+  /// icon url
   #[serde(skip_serializing_if = "Option::is_none")]
   icon_url: Option<ImageUrl>,
 }

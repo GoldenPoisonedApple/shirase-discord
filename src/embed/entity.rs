@@ -24,34 +24,34 @@ impl EmbedMedia {
 /// embed
 #[derive(Default, Serialize)]
 pub struct Embed {
-  /// タイトル
+  /// title
   #[serde(skip_serializing_if = "Option::is_none")]
   title: Option<String>,
-  /// 説明
+  /// description
   #[serde(skip_serializing_if = "Option::is_none")]
   description: Option<String>,
-  /// 作者
+  /// author
   #[serde(skip_serializing_if = "Option::is_none")]
   author: Option<Author>,
-  /// 横傍線部色
+  /// side bar color
   #[serde(skip_serializing_if = "Option::is_none")]
   color: Option<Color>,
-  /// 部分表示
+  /// fields
   #[serde(skip_serializing_if = "Vec::is_empty")]
   fields: Vec<Field>,
-  /// フッター
+  /// footer
   #[serde(skip_serializing_if = "Option::is_none")]
   footer: Option<Footer>,
-  /// タイムスタンプ
+  /// timestamp
   #[serde(
     skip_serializing_if = "Option::is_none",
     with = "time::serde::rfc3339::option"
   )]
   timestamp: Option<OffsetDateTime>,
-  /// 画像
+  /// image
   #[serde(skip_serializing_if = "Option::is_none")]
   image: Option<EmbedMedia>,
-  /// サムネイル
+  /// thumbnail
   #[serde(skip_serializing_if = "Option::is_none")]
   thumbnail: Option<EmbedMedia>,
 }

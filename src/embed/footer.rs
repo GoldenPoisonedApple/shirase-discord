@@ -8,9 +8,9 @@ use crate::error::DiscordError;
 /// Embedの一番下に表示
 #[derive(Serialize)]
 pub struct Footer {
-  /// テキスト
+  /// text
   text: String,
-  /// アイコンURL
+  /// icon url
   #[serde(skip_serializing_if = "Option::is_none")]
   icon_url: Option<ImageUrl>,
 }
