@@ -1,15 +1,15 @@
-//! # shirase
+//! # shirase_discord
 //!
 //! Async notification library for Discord.
 //!
 //! ## Quick start
 //!
 //! ```no_run
-//! use shirase::Webhook;
-//! use shirase::Message;
+//! use shirase_discord::Webhook;
+//! use shirase_discord::Message;
 //!
 //! #[tokio::main]
-//! async fn example() -> Result<(), shirase::error::DiscordError> {
+//! async fn example() -> Result<(), shirase_discord::error::DiscordError> {
 //!   let webhook = Webhook::new(10, 30)?;
 //!   let message = Message::new().content("Hello, world!")?.build()?;
 //!   webhook.send("https://discord.com/api/webhooks/...", &message).await?;

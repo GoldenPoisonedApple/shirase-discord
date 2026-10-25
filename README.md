@@ -1,4 +1,4 @@
-# shirase
+# shirase-discord
 
 [![Rust](https://img.shields.io/badge/rust-1.99%2B-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -19,7 +19,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-shirase = { git = "https://github.com/GoldenPoisonedApple/shirase.git", tag = "latest"}
+shirase_discord = { git = "https://github.com/GoldenPoisonedApple/shirase_discord.git", tag = "latest"}
 ```
 
 ## Requirements
@@ -28,18 +28,18 @@ shirase = { git = "https://github.com/GoldenPoisonedApple/shirase.git", tag = "l
 
 ## Example Usage
 
-- **Async runtime:** `shirase` does not bundle a runtime. `Webhook::send` is `async`; use an executor such as tokio
+- **Async runtime:** `shirase_discord` does not bundle a runtime. `Webhook::send` is `async`; use an executor such as tokio
 
 ```toml
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 ```
 
 ```rust
-use shirase::Webhook;
-use shirase::Message;
+use shirase_discord::Webhook;
+use shirase_discord::Message;
 
 #[tokio::main]
-async fn main() -> Result<(), shirase::error::DiscordError> {
+async fn main() -> Result<(), shirase_discord::error::DiscordError> {
   let webhook = Webhook::new(10, 30)?;
   let message = Message::new().content("Hello, world!")?.build()?;
   webhook.send("https://discord.com/api/webhooks/...", &message).await?;
@@ -55,14 +55,14 @@ async fn main() -> Result<(), shirase::error::DiscordError> {
 | --------------- | ---------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------ |
 | `content`       | `content(&str)?`             | ..2000 characters                                                                                |                                      |
 | `username`      | `username(&str)?`            | 1..80 characters                                                                                 |                                      |
-| `avatar_url`    | `avatar_url(Url)?`           | http(s)                                                                                          | shirase original restriction         |
+| `avatar_url`    | `avatar_url(Url)?`           | http(s)                                                                                          | shirase_discord original restriction         |
 | `tts`           | `tts(bool)`                  |                                                                                                  |                                      |
 | `embed`         | `add_embed(Embed)?`          | ..10 embeds, must contain at least text content, `image` or `thumbnail`, total ..6000 characters |                                      |
 | ├ `title`       | `title(&str)?`               | ..256 characters                                                                                 |                                      |
 | ├ `description` | `description(&str)?`         | ..4096 characters                                                                                |                                      |
 | ├ `author`      | `author(Author)`             |                                                                                                  |                                      |
 | │└ `name`       | `new(&str)?`                 | ..256 characters                                                                                 |                                      |
-| │└ `url`        | `url(Url)?`                  | http(s)                                                                                          | shirase original restriction         |
+| │└ `url`        | `url(Url)?`                  | http(s)                                                                                          | shirase_discord original restriction         |
 | │└ `icon_url`   | `icon_url(ImageUrl)`         |                                                                                                  |                                      |
 | ├ `color`       | `new(Color(0xXXXXXX))?`      |                                                                                                  | own Color::RED etc.                  |
 | ├ `fields`      | `add_field(Field)?`          | ..25 fields                                                                                      |                                      |
@@ -76,7 +76,7 @@ async fn main() -> Result<(), shirase::error::DiscordError> {
 | ├ `image`       | `image(ImageUrl)`            |                                                                                                  |                                      |
 | ├ `thumbnail`   | `thumbnail(ImageUrl)`        |                                                                                                  |                                      |
 | `attachments`   | `add_attachment(Attachment)` |                                                                                                  |                                      |
-| ├ `filename`    | `new(&str, Bytes)?`          | 1..1024 characters, must be unique                                                               | unique(shirase original restriction) |
+| ├ `filename`    | `new(&str, Bytes)?`          | 1..1024 characters, must be unique                                                               | unique(shirase_discord original restriction) |
 | ├ `data`        | `new(&str, Bytes)?`          | 1B..20MiB                                                                                        |                                      |
 | ├ `description` | `new(&str, Bytes)?`          | 1024 characters                                                                                  |                                      |
 | ├ `is_spoiler`  | `spoiler(bool)`              |                                                                                                  | ignored in embed                     |
@@ -84,7 +84,7 @@ async fn main() -> Result<(), shirase::error::DiscordError> {
 - Image URL:
   - url(Url): 
   - attachment(&str): An extension must be (*.png, *.jpg, *.jpeg, *.gif, *.webp).
-  And must refer to an filename added `add_attachment` method(shirase original restriction).
+  And must refer to an filename added `add_attachment` method(shirase_discord original restriction).
 - A message must contain at least one of the following:
   - `content`
   - `attachment`
@@ -99,6 +99,9 @@ async fn main() -> Result<(), shirase::error::DiscordError> {
 - [Discord Message API](https://discord.com/developers/docs/resources/message)
 - [Discord Rate Limits](https://discord.com/developers/docs/topics/rate-limits)
 - [Discord API Versioning](https://discord.com/developers/docs/reference)
+
+## Name
+- `shirase` means "notification" in Japanese.
 
 ## License
 

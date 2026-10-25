@@ -4,10 +4,10 @@ use std::fs;
 use time::OffsetDateTime;
 use url::Url;
 
-use shirase::Message;
-use shirase::Webhook;
-use shirase::error::DiscordError;
-use shirase::{Attachment, Author, Color, Embed, Field, Footer, ImageUrl};
+use shirase_discord::Message;
+use shirase_discord::Webhook;
+use shirase_discord::error::DiscordError;
+use shirase_discord::{Attachment, Author, Color, Embed, Field, Footer, ImageUrl};
 
 fn main() -> Result<(), DiscordError> {
   dotenv().ok();
