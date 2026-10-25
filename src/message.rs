@@ -182,7 +182,7 @@ impl Message {
               filename.rsplit('.').next().unwrap().to_string(),
             ));
           }
-        
+
           // verify attachment filename reference
           if !attachment_filenames.contains(filename.as_str()) {
             return Err(DiscordError::AttachmentUrlNotFound(filename.clone()));
@@ -262,8 +262,10 @@ mod verify_tests {
       .unwrap()
       .description(&"a".repeat(4000))
       .unwrap()
-      .add_field(Field::new(&"a".repeat(100), &"a".repeat(500)).unwrap()).unwrap()
-      .add_field(Field::new(&"a".repeat(100), &"a".repeat(500)).unwrap()).unwrap();
+      .add_field(Field::new(&"a".repeat(100), &"a".repeat(500)).unwrap())
+      .unwrap()
+      .add_field(Field::new(&"a".repeat(100), &"a".repeat(500)).unwrap())
+      .unwrap();
     let embed_b = Embed::new()
       .author(
         Author::new(&"b".repeat(50))
@@ -272,9 +274,11 @@ mod verify_tests {
           .unwrap()
           .icon_url(ImageUrl::attachment("author_icon.png")),
       )
-      .footer(Footer::new(&"b".repeat(1000)).unwrap().icon_url(ImageUrl::attachment(
-        "footer-icon.png",
-      )))
+      .footer(
+        Footer::new(&"b".repeat(1000))
+          .unwrap()
+          .icon_url(ImageUrl::attachment("footer-icon.png")),
+      )
       .color(Color::RED)
       .image(ImageUrl::url(
         Url::parse("https://example.com/image.png").unwrap(),
@@ -290,7 +294,9 @@ mod verify_tests {
       .unwrap()
       .build()
       .err()
-      .expect("failed to return error when building a message with total embed text over 6000 characters");
+      .expect(
+        "failed to return error when building a message with total embed text over 6000 characters",
+      );
     assert!(matches!(
       error,
       DiscordError::TooLongContent {
@@ -318,8 +324,7 @@ mod verify_tests {
 
   #[test]
   fn attachment_imageurl_without_matching_attachment_filename_should_return_error() {
-    let embed = Embed::new()
-      .image(ImageUrl::attachment("missing.png"));
+    let embed = Embed::new().image(ImageUrl::attachment("missing.png"));
     let error = Message::new()
       .add_embed(embed)
       .unwrap()
@@ -419,7 +424,10 @@ mod verify_tests {
     assert_eq!(embed["fields"][2]["value"], "Value 3");
     assert_eq!(embed["fields"][2]["inline"], false);
     assert_eq!(embed["footer"]["text"], "footer");
-    assert_eq!(embed["footer"]["icon_url"], "https://example.com/footer-icon.png");
+    assert_eq!(
+      embed["footer"]["icon_url"],
+      "https://example.com/footer-icon.png"
+    );
     assert_eq!(embed["timestamp"], "1970-01-01T00:00:00Z");
     assert_eq!(embed["image"]["url"], "attachment://image.png");
     assert_eq!(embed["thumbnail"]["url"], "attachment://thumbnail.png");

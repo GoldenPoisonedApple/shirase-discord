@@ -234,7 +234,7 @@ mod verify_tests {
   #[test]
   fn image_only_embed_should_succeed_verify() {
     let embed = Embed::new().image(ImageUrl::attachment("image.png"));
-    
+
     embed.verify().unwrap();
   }
 }

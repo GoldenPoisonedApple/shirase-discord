@@ -170,7 +170,6 @@ impl Webhook {
   }
 }
 
-
 #[cfg(test)]
 mod tests {
   use super::*;
