@@ -1,5 +1,10 @@
 # shirase
 
+[![Rust](https://img.shields.io/badge/rust-1.99%2B-orange.svg)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+
+
 **A Rust library for asynchronously  sending Discord webhooks.**
 
 ## Features
@@ -17,7 +22,17 @@ Add this to your `Cargo.toml`:
 shirase = { git = "https://github.com/GoldenPoisonedApple/shirase.git", tag = "latest"}
 ```
 
+## Requirements
+
+- **MSRV:** Rust 1.99 or later (`rust-version` in `Cargo.toml`)
+
 ## Example Usage
+
+- **Async runtime:** `shirase` does not bundle a runtime. `Webhook::send` is `async`; use an executor such as tokio
+
+```toml
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+```
 
 ```rust
 use shirase::Webhook;
@@ -31,6 +46,8 @@ async fn main() -> Result<(), shirase::error::DiscordError> {
   Ok(())
 }
 ```
+
+- For embeds, attachments, and a complete builder walkthrough, see [examples/full_webhook.rs](examples/full_webhook.rs).
 
 ## API Specification(at 2026/10/25)
 
@@ -85,4 +102,4 @@ async fn main() -> Result<(), shirase::error::DiscordError> {
 
 ## License
 
-This project is licensed under the MIT License, see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE)
