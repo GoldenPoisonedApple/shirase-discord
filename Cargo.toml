@@ -1,16 +1,40 @@
 # プロジェクトのライブラリ管理
 [package]
-name = "shirase"
+name = "shirase-discord"
 version = "0.1.0"
 edition = "2024"
-description = "Async notification library for Discord and other platforms"
+description = "Async notification library for Discord"
 license = "MIT"
 readme = "README.md"
-rust-version = "1.99" # 対応する最低バージョン
+rust-version = "1.99.1" # 対応する最低バージョン
+repository = "https://github.com/GoldenPoisonedApple/shirase-discord"
+authors = ["GoldenPoisonedApple"]
 
 # ライブラリ
 [lib]
-name = "shirase"
+name = "shirase_discord"
 path = "src/lib.rs"
 
 [dependencies]
+# 非同期
+async-trait = "0.1.92"
+# エラー
+thiserror = "2.0.21"
+# URL
+url = { version = "2.5.8", features = ["serde"] }
+# JSON
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+# 時間
+time = { version = "0.3.55", features = ["formatting", "serde"] }
+# http client
+reqwest = { version = "0.13.5", features = ["json", "multipart"] }
+# data
+bytes = "1.12.1"
+
+
+# 開発環境のみでの依存
+[dev-dependencies]
+# dotenv
+dotenvy = "0.15.7"
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros"] }

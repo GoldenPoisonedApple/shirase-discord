@@ -8,3 +8,8 @@
 .env
 .env.*
 !.env.example
+
+# テスト用JSON
+test.json
+test-file.json
+sample*.png

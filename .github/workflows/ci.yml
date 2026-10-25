@@ -1,0 +1,42 @@
+name: CI
+
+# mainにPRされたら実行
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - "1.99.1" # MSRV
+          - stable
+
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # rust environment setup
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: rustfmt, clippy
+
+      # cache cargo dependencies
+      - uses: Swatinem/rust-cache@v2
+
+      # cargo deny check
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          rust-version: ${{ matrix.toolchain }}
+
+      # run ci
+      - run: make ci

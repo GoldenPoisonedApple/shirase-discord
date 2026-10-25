@@ -1,3 +1,9 @@
+# .envファイルを読み込む
+# Makeの変数として扱う
+# -include: ファイルが存在しない場合はエラーとしない
+-include .env
+export
+
 # ドキュメントを生成してブラウザで開く
 .PHONY: docs
 docs:
@@ -34,12 +40,38 @@ test:
 # sources: 依存元チェック
 .PHONY: check
 check:
+	$(MAKE) format
+	$(MAKE) lint
+	$(MAKE) test
 	cargo deny check
+
 
 # チェック
 .PHONY: ci
 ci:
-	$(MAKE) check
 	$(MAKE) lint
 	$(MAKE) test
 	cargo fmt --all -- --check
+
+
+# ----------------------------
+# test
+# ----------------------------
+
+.PHONY: example
+example:
+	cargo run --example full_webhook
+
+# 送信テスト
+.PHONY: send-test
+send-test:
+	curl -X POST -H "Content-Type: application/json" -d @test.json $(DISCORD_WEBHOOK_URL)
+
+# <: 文字列としてフィールドに入れる
+# @: ファイルとして送る
+.PHONY: send-test-file
+send-test-file:
+	curl -vvv -X POST -F "payload_json=<test-file.json" \
+	 -F "files[0]=@sample00.png;type=application/octet-stream" \
+	 -F "files[1]=@sample01.png;type=application/octet-stream" \
+	 $(DISCORD_WEBHOOK_URL)
