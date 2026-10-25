@@ -10,13 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-			# crates.io authentication
-			# ここでcrates.ioから30分有効なトークンを取得 outputs.token に格納
+      # crates.io authentication
+      # ここでcrates.ioから30分有効なトークンを取得 outputs.token に格納
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
-			
+
       # cargo publish
-			# Cargo.tomlを読む、ソースをアップロード等、公開まで
+      # Cargo.tomlを読む、ソースをアップロード等、公開まで
       - run: cargo publish
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
