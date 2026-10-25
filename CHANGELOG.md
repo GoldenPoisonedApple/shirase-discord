@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/GoldenPoisonedApple/shirase-discord/compare/shirase-discord-v0.1.2...shirase-discord-v0.1.3) (2026-10-25)
+
+
+### Features
+
+* create publish flow ([830cf85](https://github.com/GoldenPoisonedApple/shirase-discord/commit/830cf8586635901457321b07fc2f78e0295befc4))
+
 ## [0.1.2](https://github.com/GoldenPoisonedApple/shirase-discord/compare/shirase-discord-v0.1.1...shirase-discord-v0.1.2) (2026-10-25)
 
 
