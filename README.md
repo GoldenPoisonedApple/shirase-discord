@@ -9,15 +9,13 @@
 
 - Asynchronous sending.
 - Send custom messages.
-- Performs pre-send validation to minimize unnecessary network requests
+- Performs pre-send validation to minimize unnecessary network requests.
+- NO VIBE CODING LIBRARY.
 
 ## Installation
 
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-shirase_discord = { git = "https://github.com/GoldenPoisonedApple/shirase_discord.git", tag = "latest"}
+```bash
+cargo add shirase-discord
 ```
 
 ## Requirements
