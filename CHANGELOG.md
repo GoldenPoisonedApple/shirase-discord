@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/GoldenPoisonedApple/shirase-discord/compare/shirase-discord-v0.1.3...shirase-discord-v0.1.4) (2026-10-26)
+
+
+### Features
+
+* update README ([344d10d](https://github.com/GoldenPoisonedApple/shirase-discord/commit/344d10d105b7d613716134fae874771520d3700d))
+
 ## [0.1.3](https://github.com/GoldenPoisonedApple/shirase-discord/compare/shirase-discord-v0.1.2...shirase-discord-v0.1.3) (2026-10-25)
 
 
