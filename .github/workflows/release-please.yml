@@ -1,22 +1,54 @@
-name: Release Please
+name: Release Please & Publish
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-
 jobs:
-  release:
+  release-please:
     runs-on: ubuntu-latest
 
+    permissions:
+      issues: write
+      contents: write
+      pull-requests: write
+
+    outputs:
+      # リリースが作成されたかどうか
+      release_created: ${{ steps.release.outputs.release_created }}
+      # リリースのタグ名
+      tag_name: ${{ steps.release.outputs.tag_name }}
+
     steps:
+      # バージョン更新、タグ作成、リリースの作成
       - name: Release Please
         id: release
         uses: release-please-oss/release-please-action@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    # リリースが作成された時に実行
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write # Required for OIDC token exchange
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # crates.io authentication
+      # ここでcrates.ioから30分有効なトークンを取得 outputs.token に格納
+      - uses: rust-lang/crates-io-auth-action@v1
+        id: auth
+
+      # cargo publish
+      # Cargo.tomlを読む、ソースをアップロード等、公開まで
+      - run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
