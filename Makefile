@@ -7,7 +7,7 @@ export
 # ドキュメントを生成してブラウザで開く
 .PHONY: docs
 docs:
-	cargo doc --open
+	cargo doc --all-features --open
 
 # ----------------------------
 # チェック
@@ -18,8 +18,13 @@ docs:
 format:
 	cargo fmt --all
 
+# default は blocking のみ
+# async のみ、および両方でも警告が出ないことを確認する
+# --all-features: すべての機能をテスト
 .PHONY: lint
 lint:
+	cargo clippy --all-targets -- --deny warnings
+	cargo clippy --all-targets --no-default-features --features async -- --deny warnings
 	cargo clippy --all-targets --all-features -- --deny warnings
 
 # --allow-dirty: コミットしてなくてもいい
@@ -28,10 +33,10 @@ lint:
 lint-fix:
 	cargo clippy --all-targets --all-features --fix --allow-dirty --allow-no-vcs
 
-# --all-targets: すべてのテストを実行
-# --all-features: すべての機能をテスト
 .PHONY : test
 test:
+	cargo test --all-targets
+	cargo test --all-targets --no-default-features --features async
 	cargo test --all-targets --all-features
 
 # advisories: 脆弱性チェック
@@ -57,10 +62,13 @@ ci:
 # ----------------------------
 # test
 # ----------------------------
-
 .PHONY: example
 example:
-	cargo run --example full_webhook
+	cargo run --example blocking_webhook
+
+.PHONY: example-async
+example-async:
+	cargo run --example async_webhook --features async
 
 # 送信テスト
 .PHONY: send-test

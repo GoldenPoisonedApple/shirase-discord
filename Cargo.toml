@@ -3,18 +3,24 @@
 name = "shirase-discord"
 version = "0.1.4"
 edition = "2024"
-description = "Async webhook notification library for Discord"
+description = "Webhook notification library for Discord."
 license = "MIT"
 readme = "README.md"
 rust-version = "1.99.1" # 対応する最低バージョン
 repository = "https://github.com/GoldenPoisonedApple/shirase-discord"
 authors = ["GoldenPoisonedApple <goldenpoisonedapple@gmail.com>"]
-keywords = ["discord", "webhook", "async"]
+keywords = ["discord", "webhook", "blocking", "async"]
 
 # ライブラリ
 [lib]
 name = "shirase_discord"
 path = "src/lib.rs"
+
+# 同期クライアントがデフォルト。非同期は feature `async`
+[features]
+default = ["blocking"]
+blocking = ["reqwest/blocking"]	# reqwest の blocking feature を有効にする
+async = []
 
 [dependencies]
 # 非同期
@@ -33,6 +39,13 @@ reqwest = { version = "0.13.5", features = ["json", "multipart"] }
 # data
 bytes = "1.12.1"
 
+[[example]]
+name = "blocking_webhook"
+required-features = ["blocking"]
+
+[[example]]
+name = "async_webhook"
+required-features = ["async"]
 
 # 開発環境のみでの依存
 [dev-dependencies]
