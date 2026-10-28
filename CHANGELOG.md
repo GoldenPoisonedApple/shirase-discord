@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/GoldenPoisonedApple/shirase-discord/compare/shirase-discord-v0.1.4...shirase-discord-v0.2.0) (2026-10-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* Implement synchronous send & change the default to sync webhook
+
+### Features
+
+* Implement synchronous send & change the default to sync webhook ([7f7c788](https://github.com/GoldenPoisonedApple/shirase-discord/commit/7f7c7887a09453eb738b260cbe00692b9a8dac91))
+
 ## [0.1.4](https://github.com/GoldenPoisonedApple/shirase-discord/compare/shirase-discord-v0.1.3...shirase-discord-v0.1.4) (2026-10-26)
 
 
