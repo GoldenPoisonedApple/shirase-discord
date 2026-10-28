@@ -4,8 +4,8 @@ use std::fs;
 use time::OffsetDateTime;
 use url::Url;
 
+use shirase_discord::AsyncWebhook;
 use shirase_discord::Message;
-use shirase_discord::Webhook;
 use shirase_discord::error::DiscordError;
 use shirase_discord::{Attachment, Author, Color, Embed, Field, Footer, ImageUrl};
 
@@ -17,7 +17,7 @@ fn main() -> Result<(), DiscordError> {
   let image = Bytes::from(fs::read("examples/image.png").unwrap());
   let thumbnail = image.clone();
 
-  let webhook = Webhook::new(10, 30)?;
+  let webhook = AsyncWebhook::new(10, 30)?;
 
   let message = Message::new()
     .content("Hello, world!")?

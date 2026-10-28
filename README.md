@@ -4,13 +4,13 @@
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 **A Rust library for asynchronously  sending Discord webhooks.**
+Synchronous by default, with an optional async client.
+**THIS IS NOT VIBE CODING LIBRARY!**
 
 ## Features
-
-- Asynchronous sending.
-- Send custom messages.
+- Synchronous sending.
+- `--features async` Asynchronous sending.
 - Performs pre-send validation to minimize unnecessary network requests.
-- NO VIBE CODING LIBRARY.
 
 ## Installation
 
@@ -18,33 +18,37 @@
 cargo add shirase-discord
 ```
 
-## Requirements
-
-- **MSRV:** Rust 1.99.1 or later (`rust-version` in `Cargo.toml`)
-
 ## Example Usage
-
-- **Async runtime:** `shirase_discord` does not bundle a runtime. `Webhook::send` is `async`; use an executor such as tokio
-
-```toml
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
-```
-
+#### Synchronous sending(default):
+- For embeds, attachments, and a complete builder walkthrough, see [examples/blocking_webhook.rs](examples/blocking_webhook.rs).
 ```rust
 use shirase_discord::Webhook;
 use shirase_discord::Message;
 
-#[tokio::main]
-async fn main() -> Result<(), shirase_discord::error::DiscordError> {
+fn main() -> Result<(), shirase_discord::error::DiscordError> {
   let webhook = Webhook::new(10, 30)?;
 	// message must be built before sending
+  let message = Message::new().content("Hello, world!")?.build()?;
+  webhook.send("https://discord.com/api/webhooks/...", &message)?;
+  Ok(())
+}
+```
+
+#### Asynchronous sending(`--features async`):
+- For embeds, attachments, and a complete builder walkthrough, see [examples/async_webhook.rs](examples/async_webhook.rs).
+```rust
+use shirase_discord::AsyncWebhook;
+use shirase_discord::Message;
+
+// shirase_discord does not bundle a runtime. You need to use a runtime such as tokio.
+#[tokio::main]
+async fn main() -> Result<(), shirase_discord::error::DiscordError> {
+  let webhook = AsyncWebhook::new(10, 30)?;
   let message = Message::new().content("Hello, world!")?.build()?;
   webhook.send("https://discord.com/api/webhooks/...", &message).await?;
   Ok(())
 }
 ```
-
-- For embeds, attachments, and a complete builder walkthrough, see [examples/full_webhook.rs](examples/full_webhook.rs).
 
 ## API Specification(at 2026/10/25)
 
